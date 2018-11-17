@@ -86,10 +86,16 @@ data_base CreateUserToItemAppend(const data_base& UserToItem_ori, const vector<s
 		{
 			int idx = rand() % items.size();
 			set<string>& item_set1 = result[user_name];
-			item_set1.insert(items[idx]);
+			if (item_set1.find(items[idx]) == item_set1.end())
+			{
+				item_set1.insert(items[idx]);
+				i++;
+			}
 		}
 
 	}
+
+	return result;
 }
 
 void GetR(matrix& P, matrix& Q,matrix& Result)
