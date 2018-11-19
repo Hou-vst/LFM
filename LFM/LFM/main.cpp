@@ -39,7 +39,13 @@ int main()
 
 	// 计算得到预测的R
 	matrix Predict_R;
-	GetPredictR(P,Q, Predict_R);
+	int N = 2;
+	float alpha = static_cast<float>(0.9);
+	float lambda = static_cast<float>(0.01);
+	LFM(R,P,Q,F,N,alpha,lambda,Predict_R);
 
-	system("pause");
+	Print_R(R,users,items);
+	cout << "================================" << endl;
+	Print_R(Predict_R, users, items);
+	return 0;
 } 

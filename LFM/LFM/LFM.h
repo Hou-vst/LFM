@@ -18,4 +18,6 @@ void CreateR(const data_base& user_to_item_ori, const data_base& user_to_item, m
 void GetUsersAndItems(const data_base& user_to_item, set<string>& users, set<string>& items);
 void GetRandom_P_Q(const set<string>& users, const set<string>& items, int F, matrix& P, matrix& Q);
 void GetPredictR(matrix& P, matrix& Q, matrix& Predict_R);
+void LFM(const matrix& R, matrix& P, matrix& Q, const int F, const int N, const float alpha, const float lambda, matrix& R_Result);
+void Print_R(const matrix& R_Result, const set<string>& users, const set<string>& items);
 #endif // !LFM_H

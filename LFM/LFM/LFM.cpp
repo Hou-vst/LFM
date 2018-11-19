@@ -1,5 +1,5 @@
 #include"LFM.h"
-
+#include<iostream>
 
 string A[] = { "a","b","d" };
 string B[] = { "b","c","e" };
@@ -232,6 +232,89 @@ void GetPredictR(matrix& P, matrix& Q, matrix& Predict_R)
 		}
 	}
 }
+/*
+R:采集负样本后生成的user-item兴趣度矩阵 
+P:user-隐特征矩阵，要优化的结果
+Q:隐特征-item矩阵，要优化的结果
+F：隐特征个数
+N：迭代次数
+alfha：学习速率
+lambda：正则化参数
+*/
+void LFM(const matrix& R, matrix& P, matrix& Q, const int F,const int N,const float alpha,const float lambda, matrix& R_Result)
+{
+	for (int i = 0; i < N; i++)
+	{
+		matrix Predict_R;
+		GetPredictR(P,Q,Predict_R);
 
+		matrix::const_iterator user_begin = Predict_R.begin();
+		matrix::const_iterator user_end = Predict_R.end();
+		for (; user_begin != user_end; user_begin++)
+		{
+			const string& user_name = user_begin->first;
+			const map<string, float>& items = user_begin->second;
+
+			map<string, float>::const_iterator item_begin = items.begin();
+			map<string, float>::const_iterator item_end = items.end();
+			for (; item_begin != item_end; item_begin++)
+			{
+				const string& item_name = item_begin->first;
+
+				matrix::const_iterator iter = R.find(user_name);
+				float r = 0;
+				if (iter != R.end() && iter->second.find(item_name) != iter->second.end())
+				{
+					r = iter->second.find(item_name)->second;
+				}
+				float eui = r - Predict_R[user_name][item_name];
+				for (int j = 0; j < F; j++)
+				{
+					char buff[256];
+					memset(buff, 0, 256);
+					sprintf_s(buff, "%d", i);
+					string F_str = buff;
+					P[user_name][F_str] += alpha * (eui*Q[F_str][item_name] - lambda * P[user_name][F_str]);
+					Q[F_str][item_name] += alpha * (eui*P[user_name][F_str]-lambda*Q[F_str][item_name]);
+				}
+			}
+		}
+	}
+
+	R_Result.clear();
+	GetPredictR(P, Q, R_Result);
+}
+
+void Print_R(const matrix& R_Result,const set<string>& users, const set<string>& items)
+{
+	set<string>::const_iterator item_begin1 = items.begin();
+	set<string>::const_iterator item_end1 = items.end();
+	cout << "    ";
+	for (; item_begin1 != item_end1; item_begin1++)
+	{
+		cout << (*item_begin1).c_str() << "    ";
+	}
+	cout << endl;
+	set<string>::const_iterator user_begin = users.begin();
+	set<string>::const_iterator user_end = users.end();
+	for (; user_begin != user_end; user_begin++)
+	{
+		const string& user_name = *user_begin;
+		cout << user_name.c_str() << "    ";
+		set<string>::const_iterator item_begin = items.begin();
+		set<string>::const_iterator item_end = items.end();
+		for (; item_begin != item_end; item_begin++)
+		{
+			const string& item_name = *item_begin;
+			float score = 0;
+			if (R_Result.find(user_name) != R_Result.end() && R_Result.find(user_name)->second.find(item_name) != R_Result.find(user_name)->second.end())
+			{
+				score = R_Result.find(user_name)->second.find(item_name)->second;
+			}
+			cout << score << "    ";
+		}
+		cout << endl;
+	}
+}
 
 
